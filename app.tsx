@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { AppState, AppView, Preferences, StudyPlan, User, StudyGroup, SharedNote, Flashcard, TopicScore, Invitation } from './types';
+import { AppState, AppView, Preferences, StudyPlan, User, StudyGroup, SharedNote, Flashcard, TopicScore, Invitation, Course, Assignment, Book, OnlineExamItem, LeaveRequest, AttendanceRecord } from './types';
 import SyllabusUploadStep from './components/SyllabusUploadStep';
 import PreferencesStep from './components/PreferencesStep';
 import StudyPlanView from './components/StudyPlanView';
@@ -15,7 +15,19 @@ import IntelligentTodoView from './components/IntelligentTodoView';
 import WellbeingHubView from './components/WellbeingHubView';
 import GamingView from './components/GamingView';
 import FeynmanBoardView from './components/FeynmanBoardView';
-import DebateArenaView from './components/DebateArenaView'; // Import DebateArenaView
+import DebateArenaView from './components/DebateArenaView';
+import TeacherDashboardView from './components/TeacherDashboardView';
+import ParentDashboardView from './components/ParentDashboardView';
+import StudentAnalyticsView from './components/StudentAnalyticsView';
+import MyProfileView from './components/MyProfileView';
+import OnlineCoursesView from './components/OnlineCoursesView';
+import CoursePlayerView from './components/CoursePlayerView'; // NEW
+import HomeworkView from './components/HomeworkView';
+import DigitalLibraryView from './components/DigitalLibraryView';
+import OnlineExamView from './components/OnlineExamView';
+import ExamTakingView from './components/ExamTakingView'; // NEW
+import LeaveManagementView from './components/LeaveManagementView';
+import AttendanceView from './components/AttendanceView'; 
 import LandingPage from './components/LandingPage';
 
 import { BookOpenIcon } from './components/icons/BookOpenIcon';
@@ -30,22 +42,30 @@ import { CheckSquareIcon } from './components/icons/CheckSquareIcon';
 import { WindIcon } from './components/icons/WindIcon';
 import { Gamepad2Icon } from './components/icons/Gamepad2Icon';
 import { PresentationIcon } from './components/icons/PresentationIcon';
-import { SwordsIcon } from './components/icons/SwordsIcon'; // Import SwordsIcon
+import { SwordsIcon } from './components/icons/SwordsIcon';
+import { UsersIcon } from './components/icons/UsersIcon';
+import { ActivityIcon } from './components/icons/ActivityIcon';
+import { BarChartIcon } from './components/icons/BarChartIcon';
+import { ClipboardCheckIcon } from './components/icons/ClipboardCheckIcon';
+import { CalendarIcon } from './components/icons/CalendarIcon';
+import { CalendarCheckIcon } from './components/icons/CalendarCheckIcon'; 
 
 
 // Mock Database Initialization
 const initializeMockData = () => {
     // In a real app, this data would come from a database.
     const initialUsers: User[] = [
-        { id: 'user-1', name: 'Archana', email: 'archana@example.com', password: 'password123', groups: ['group-1'] },
-        { id: 'user-2', name: 'Lavanya', email: 'lavanya@example.com', password: 'password123', groups: ['group-1'] },
-        { id: 'user-3', name: 'Dhivya Prabha', email: 'dhivya@example.com', password: 'password123', groups: ['group-1'] },
-        { id: 'user-4', name: 'Maithraye', email: 'maithraye@example.com', password: 'password123', groups: ['group-2'] },
-        { id: 'user-5', name: 'Divya', email: 'divya@example.com', password: 'password123', groups: [] },
-        { id: 'user-6', name: 'Afraah', email: 'afraah@example.com', password: 'password123', groups: [] },
-        { id: 'user-7', name: 'Gopika', email: 'gopika@example.com', password: 'password123', groups: ['group-2'] },
-        { id: 'user-anika', name: 'Anika (You)', email: 'anika@example.com', password: 'password123', groups: ['group-3'] },
-        { id: 'user-peter', name: 'Peter', email: 'peter@example.com', password: 'password123', groups: ['group-3'] },
+        { id: 'user-1', name: 'Archana', email: 'archana@example.com', password: 'password123', groups: ['group-1'], role: 'student' },
+        { id: 'user-2', name: 'Lavanya', email: 'lavanya@example.com', password: 'password123', groups: ['group-1'], role: 'student' },
+        { id: 'user-3', name: 'Dhivya Prabha', email: 'dhivya@example.com', password: 'password123', groups: ['group-1'], role: 'student' },
+        { id: 'user-4', name: 'Maithraye', email: 'maithraye@example.com', password: 'password123', groups: ['group-2'], role: 'student' },
+        { id: 'user-5', name: 'Divya', email: 'divya@example.com', password: 'password123', groups: [], role: 'student' },
+        { id: 'user-6', name: 'Afraah', email: 'afraah@example.com', password: 'password123', groups: [], role: 'student' },
+        { id: 'user-7', name: 'Gopika', email: 'gopika@example.com', password: 'password123', groups: ['group-2'], role: 'student' },
+        { id: 'user-anika', name: 'Anika (You)', email: 'anika@example.com', password: 'password123', groups: ['group-3'], role: 'student' },
+        { id: 'user-peter', name: 'Peter', email: 'peter@example.com', password: 'password123', groups: ['group-3'], role: 'student' },
+        { id: 'user-teacher', name: 'Mr. Anderson', email: 'teacher@example.com', password: 'password123', groups: [], role: 'teacher' },
+        { id: 'user-parent', name: 'Mrs. Sharma', email: 'parent@example.com', password: 'password123', groups: [], role: 'parent' },
     ];
     const initialGroups: StudyGroup[] = [
         { id: 'group-1', name: 'Quantum Physics Crew', subject: 'Quantum Computing', members: ['Archana', 'Lavanya', 'Dhivya Prabha'] },
@@ -69,7 +89,83 @@ const initializeMockData = () => {
     const initialInvitations: Invitation[] = [
         { id: 'inv-1', groupId: 'group-2', groupName: 'Algorithms & Data Structures', fromUserName: 'Maithraye', toUserId: 'user-5', status: 'pending' },
     ];
-    return { initialUsers, initialGroups, initialNotes, initialFlashcards, initialScores, initialInvitations };
+
+    // New Mock Data
+    const initialCourses: Course[] = [
+        { 
+            id: 'c1', title: 'Cosmic Astrophysics', instructor: 'Dr. Tyson', progress: 45, totalLessons: 12, thumbnailColor: 'bg-purple-600',
+            lessons: [
+                { id: 'l1', title: 'The Big Bang', duration: '12:30', completed: true },
+                { id: 'l2', title: 'Stellar Evolution', duration: '15:45', completed: true },
+                { id: 'l3', title: 'Black Holes', duration: '20:10', completed: false }
+            ]
+        },
+        { 
+            id: 'c2', title: 'Advanced Calculus', instructor: 'Prof. Greene', progress: 10, totalLessons: 20, thumbnailColor: 'bg-blue-600',
+            lessons: [
+                { id: 'l1', title: 'Limits Review', duration: '10:00', completed: true },
+                { id: 'l2', title: 'Derivatives', duration: '25:00', completed: false }
+            ]
+        },
+        { 
+            id: 'c3', title: 'Creative Writing', instructor: 'Ms. Rowling', progress: 90, totalLessons: 8, thumbnailColor: 'bg-yellow-600',
+            lessons: [
+                { id: 'l1', title: 'Character Arc', duration: '14:20', completed: true },
+                { id: 'l2', title: 'World Building', duration: '18:50', completed: true }
+            ]
+        },
+    ];
+
+    const initialAssignments: Assignment[] = [
+        { id: 'a1', title: 'Essay: The French Revolution', subject: 'History', description: 'Write a 1000 word essay on the causes.', dueDate: 'Oct 30', status: 'Pending', assignedBy: 'Mr. Anderson' },
+        { id: 'a2', title: 'Problem Set 4', subject: 'Math', description: 'Complete exercises 1-10 on page 42.', dueDate: 'Oct 28', status: 'Completed', assignedBy: 'Mrs. Gable' },
+    ];
+
+    const initialBooks: Book[] = [
+        { id: 'b1', title: 'The Universe in a Nutshell', author: 'Stephen Hawking', coverColor: 'bg-indigo-700', summary: 'A guide to the universe, explaining complex physics concepts like supergravity and M-theory in accessible terms.' },
+        { id: 'b2', title: 'To Kill a Mockingbird', author: 'Harper Lee', coverColor: 'bg-orange-700', summary: 'A novel about racial injustice in the American South, seen through the eyes of young Scout Finch.' },
+        { id: 'b3', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', coverColor: 'bg-emerald-700', summary: 'A story of decadence, excess, and unrequited love in the Jazz Age, focused on the mysterious Jay Gatsby.' },
+        { id: 'b4', title: '1984', author: 'George Orwell', coverColor: 'bg-red-700', summary: 'A dystopian social science fiction novel and cautionary tale about totalitarianism and mass surveillance.' },
+        { id: 'b5', title: 'Sapiens', author: 'Yuval Noah Harari', coverColor: 'bg-yellow-700', summary: 'A brief history of humankind, from the Stone Age to the Silicon Age.' },
+    ];
+
+    const initialExams: OnlineExamItem[] = [
+        { 
+            id: 'e1', title: 'Midterm Physics', subject: 'Physics', duration: '90 Mins', status: 'Active', date: 'Today',
+            questions: [
+                { id: 1, question: "What is the speed of light in a vacuum?", options: ["299,792 km/s", "300,000 km/s", "150,000 km/s", "Unknown"], correctIndex: 0 },
+                { id: 2, question: "Newton's Second Law is:", options: ["F = ma", "E = mc^2", "a^2 + b^2 = c^2", "p = mv"], correctIndex: 0 }
+            ]
+        },
+        { 
+            id: 'e2', title: 'History Quiz 3', subject: 'History', duration: '30 Mins', status: 'Upcoming', date: 'Nov 2',
+            questions: []
+        },
+        { 
+            id: 'e3', title: 'Math Final Prep', subject: 'Math', duration: '60 Mins', status: 'Completed', date: 'Oct 20',
+            questions: []
+        },
+    ];
+
+    const initialLeaves: LeaveRequest[] = [
+        { id: 'l1', studentId: 'user-anika', studentName: 'Anika', parentName: 'Mrs. Sharma', reason: 'Family Wedding', dates: 'Nov 10 - Nov 12', status: 'Pending' },
+    ];
+
+    const initialAttendance: AttendanceRecord[] = [];
+    const today = new Date();
+    for(let i=0; i<20; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        if (d.getDay() !== 0 && d.getDay() !== 6) { // Skip weekends
+            initialAttendance.push({
+                id: `att-${i}`,
+                date: d.toISOString().split('T')[0],
+                status: Math.random() > 0.1 ? 'Present' : Math.random() > 0.5 ? 'Absent' : 'Late'
+            });
+        }
+    }
+
+    return { initialUsers, initialGroups, initialNotes, initialFlashcards, initialScores, initialInvitations, initialCourses, initialAssignments, initialBooks, initialExams, initialLeaves, initialAttendance };
 };
 
 
@@ -94,6 +190,18 @@ const App: React.FC = () => {
   const [topicScores, setTopicScores] = useState<TopicScore[]>(() => initializeMockData().initialScores);
   const [invitations, setInvitations] = useState<Invitation[]>(() => initializeMockData().initialInvitations);
   
+  // New States
+  const [courses, setCourses] = useState<Course[]>(() => initializeMockData().initialCourses);
+  const [assignments, setAssignments] = useState<Assignment[]>(() => initializeMockData().initialAssignments);
+  const [books, setBooks] = useState<Book[]>(() => initializeMockData().initialBooks);
+  const [exams, setExams] = useState<OnlineExamItem[]>(() => initializeMockData().initialExams);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(() => initializeMockData().initialLeaves);
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(() => initializeMockData().initialAttendance);
+
+  // --- Interactive States ---
+  const [activeCourse, setActiveCourse] = useState<Course | null>(null);
+  const [activeExam, setActiveExam] = useState<OnlineExamItem | null>(null);
+
   // --- UI State ---
   const [isInvitePopoverOpen, setIsInvitePopoverOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -110,6 +218,11 @@ const App: React.FC = () => {
         const { password, ...userWithoutPassword } = user;
         setCurrentUser(userWithoutPassword);
         setShowLanding(false); // Skip landing if logged in
+        
+        // Route based on role
+        if (user.role === 'teacher') setCurrentView(AppView.TeacherDashboard);
+        else if (user.role === 'parent') setCurrentView(AppView.ParentDashboard);
+        else setCurrentView(AppView.StudyPlan);
       }
     }
     setAuthLoading(false);
@@ -286,18 +399,68 @@ const App: React.FC = () => {
     });
   };
 
+  const handleApplyLeave = (reason: string, dates: string) => {
+      if (!currentUser) return;
+      const newLeave: LeaveRequest = {
+          id: `l-${Date.now()}`,
+          studentId: currentUser.id, // For parent, we might simulate choosing a child, here assume 1 child for simplicty
+          studentName: 'Anika', // Mocked child name
+          parentName: currentUser.name,
+          reason,
+          dates,
+          status: 'Pending'
+      };
+      setLeaveRequests(prev => [...prev, newLeave]);
+  };
+
+  const handleLeaveStatusChange = (id: string, status: 'Approved' | 'Rejected') => {
+      setLeaveRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req));
+  };
+
+  // --- New Interactive Handlers ---
+  const handleMarkAssignmentDone = (id: string) => {
+      setAssignments(prev => prev.map(a => a.id === id ? { ...a, status: a.status === 'Completed' ? 'Pending' : 'Completed' } : a));
+  };
+
+  const handleOpenCourse = (course: Course) => {
+      setActiveCourse(course);
+      setCurrentView(AppView.CoursePlayer);
+  };
+
+  const handleStartExam = (exam: OnlineExamItem) => {
+      setActiveExam(exam);
+      setCurrentView(AppView.ExamTaking);
+  };
+
+  const handleSubmitExam = () => {
+      // In a real app, save score to DB
+      if (activeExam) {
+          setExams(prev => prev.map(e => e.id === activeExam.id ? { ...e, status: 'Completed' } : e));
+      }
+      // Delay navigation back slightly for user to see result
+      setTimeout(() => {
+          setActiveExam(null);
+          setCurrentView(AppView.OnlineExams);
+      }, 3000);
+  };
+
   // --- Auth Handlers ---
-  const handleSignUp = (name: string, email: string, password_raw: string): Promise<void> => {
+  const handleSignUp = (name: string, email: string, password_raw: string, role: 'student' | 'teacher' | 'parent'): Promise<void> => {
       return new Promise((resolve, reject) => {
           if (users.some(u => u.email === email)) {
               reject(new Error("An account with this email already exists."));
               return;
           }
-          const newUser: User = { id: `user-${Date.now()}`, name, email, password: password_raw, groups: [] };
+          const newUser: User = { id: `user-${Date.now()}`, name, email, password: password_raw, groups: [], role };
           setUsers(prev => [...prev, newUser]);
           const { password, ...userForState } = newUser;
           setCurrentUser(userForState);
           localStorage.setItem('loggedInUserId', newUser.id);
+          
+          if (role === 'teacher') setCurrentView(AppView.TeacherDashboard);
+          else if (role === 'parent') setCurrentView(AppView.ParentDashboard);
+          else setCurrentView(AppView.StudyPlan);
+
           resolve();
       });
   };
@@ -309,6 +472,11 @@ const App: React.FC = () => {
               const { password, ...userForState } = user;
               setCurrentUser(userForState);
               localStorage.setItem('loggedInUserId', user.id);
+              
+              if (user.role === 'teacher') setCurrentView(AppView.TeacherDashboard);
+              else if (user.role === 'parent') setCurrentView(AppView.ParentDashboard);
+              else setCurrentView(AppView.StudyPlan);
+
               resolve();
           } else {
               reject(new Error("Invalid email or password."));
@@ -383,19 +551,33 @@ const App: React.FC = () => {
 
   const renderAppContent = () => {
       switch(currentView) {
+          // Main Dashboards
+          case AppView.TeacherDashboard: return <TeacherDashboardView students={users} groups={studyGroups} />;
+          case AppView.ParentDashboard: return <ParentDashboardView />;
+          
+          // Core Features
           case AppView.StudyPlan: return renderStudyPlanContent();
+          case AppView.StudentAnalytics: return <StudentAnalyticsView plan={studyPlan} />;
           case AppView.FocusMonitor: return <FocusMonitorView onNavigate={setCurrentView} />;
           case AppView.GroupChat: return <GroupChatView />;
-          case AppView.AmbientVoice: return <AmbientVoiceView 
-              preferences={userPreferences} 
-              plan={studyPlan} 
-              userName={currentUser?.name || 'Student'} 
-          />;
+          case AppView.AmbientVoice: return <AmbientVoiceView preferences={userPreferences} plan={studyPlan} userName={currentUser?.name || 'Student'} />;
           case AppView.IntelligentTodo: return <IntelligentTodoView />;
           case AppView.WellbeingHub: return <WellbeingHubView />;
           case AppView.Gaming: return <GamingView />;
           case AppView.FeynmanBoard: return <FeynmanBoardView topics={studyPlan?.topics || []} />;
-          case AppView.DebateArena: return <DebateArenaView topics={studyPlan?.topics || []} />; // Render DebateArenaView
+          case AppView.DebateArena: return <DebateArenaView topics={studyPlan?.topics || []} />;
+          
+          // New Features
+          case AppView.MyProfile: return <MyProfileView user={currentUser!} />;
+          case AppView.OnlineCourses: return <OnlineCoursesView courses={courses} onSelectCourse={handleOpenCourse} />;
+          case AppView.CoursePlayer: return activeCourse ? <CoursePlayerView course={activeCourse} onBack={() => setCurrentView(AppView.OnlineCourses)} /> : <OnlineCoursesView courses={courses} onSelectCourse={handleOpenCourse} />;
+          case AppView.Homework: return <HomeworkView assignments={assignments} userRole={currentUser!.role} onToggleStatus={handleMarkAssignmentDone} />;
+          case AppView.DigitalLibrary: return <DigitalLibraryView books={books} />;
+          case AppView.OnlineExams: return <OnlineExamView exams={exams} onStartExam={handleStartExam} />;
+          case AppView.ExamTaking: return activeExam ? <ExamTakingView exam={activeExam} onBack={() => setCurrentView(AppView.OnlineExams)} onSubmit={handleSubmitExam} /> : <OnlineExamView exams={exams} onStartExam={handleStartExam} />;
+          case AppView.LeaveManagement: return <LeaveManagementView requests={leaveRequests} userRole={currentUser!.role} currentUser={currentUser!} onStatusChange={handleLeaveStatusChange} onApplyLeave={handleApplyLeave} />;
+          case AppView.Attendance: return <AttendanceView records={attendanceRecords} />; 
+
           default: return renderStudyPlanContent();
       }
   }
@@ -443,7 +625,10 @@ const App: React.FC = () => {
       label: string;
       icon: React.FC<React.SVGProps<SVGSVGElement>>;
     }> = ({ view, label, icon: Icon }) => {
-        const isActive = currentView === view;
+        const isActive = currentView === view || 
+                         (currentView === AppView.CoursePlayer && view === AppView.OnlineCourses) ||
+                         (currentView === AppView.ExamTaking && view === AppView.OnlineExams);
+                         
         return (
             <button 
                 onClick={() => setCurrentView(view)} 
@@ -472,11 +657,11 @@ const App: React.FC = () => {
               </div>
               
               <div className="flex items-center gap-2 sm:gap-4">
-                   {/* Streak Counter - Gamification */}
-                   <div className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 rounded-full border border-stone-700" title={`${streakDays} Day Streak!`}>
+                   {/* Streak Counter - Gamification (Students Only) */}
+                   {currentUser.role === 'student' && <div className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 rounded-full border border-stone-700" title={`${streakDays} Day Streak!`}>
                         <span className="text-lg">🔥</span>
                         <span className="text-sm font-bold text-orange-500">{streakDays}</span>
-                   </div>
+                   </div>}
 
                    <div className="relative">
                      <button onClick={() => setIsInvitePopoverOpen(prev => !prev)} className="relative p-2 rounded-full hover:bg-stone-800 transition-colors">
@@ -486,7 +671,7 @@ const App: React.FC = () => {
                      {isInvitePopoverOpen && (
                         <div className="absolute right-0 mt-2 w-72 bg-stone-900 rounded-lg shadow-xl border border-stone-700 animate-fade-in z-40">
                           <div className="p-3 border-b border-stone-700 bg-stone-800 rounded-t-lg">
-                            <h3 className="font-semibold text-sm text-stone-200">Group Invitations</h3>
+                            <h3 className="font-semibold text-sm text-stone-200">Notifications</h3>
                           </div>
                           {pendingInvites.length > 0 ? (
                             <ul className="py-1 max-h-64 overflow-y-auto">
@@ -509,7 +694,7 @@ const App: React.FC = () => {
                      )}
                    </div>
                   <div className="h-6 w-px bg-stone-800 hidden sm:block" />
-                  <button onClick={() => setIsProfileModalOpen(true)} className="flex items-center gap-2 text-sm p-2 rounded-md hover:bg-stone-800 transition-colors group">
+                  <button onClick={() => setCurrentView(AppView.MyProfile)} className="flex items-center gap-2 text-sm p-2 rounded-md hover:bg-stone-800 transition-colors group">
                     <UserIcon className="h-5 w-5 text-stone-400 group-hover:text-amber-400" />
                     <span className="font-medium text-stone-300 hidden sm:inline">{currentUser.name}</span>
                   </button>
@@ -527,15 +712,61 @@ const App: React.FC = () => {
             <aside className="lg:w-64 lg:flex-shrink-0 py-8">
                 <div className="bg-stone-900 rounded-xl shadow-md border border-stone-800 p-4 sticky top-24">
                     <nav className="space-y-2">
-                    <NavLink view={AppView.StudyPlan} label="Study Plan" icon={LayoutDashboardIcon} />
-                    <NavLink view={AppView.FeynmanBoard} label="Feynman Board" icon={PresentationIcon} />
-                    <NavLink view={AppView.DebateArena} label="Debate Arena" icon={SwordsIcon} />
-                    <NavLink view={AppView.IntelligentTodo} label="Smart To-Do" icon={CheckSquareIcon} />
-                    <NavLink view={AppView.FocusMonitor} label="Focus Monitor" icon={TargetIcon} />
-                    <NavLink view={AppView.GroupChat} label="Group Chat" icon={MessageCircleIcon} />
-                    <NavLink view={AppView.AmbientVoice} label="Ambient Coach" icon={MicIcon} />
-                    <NavLink view={AppView.WellbeingHub} label="Wellbeing Hub" icon={WindIcon} />
-                    <NavLink view={AppView.Gaming} label="Game Zone" icon={Gamepad2Icon} />
+                    
+                    {/* Student View Links */}
+                    {currentUser.role === 'student' && (
+                        <>
+                            <NavLink view={AppView.StudyPlan} label="Study Plan" icon={LayoutDashboardIcon} />
+                            <NavLink view={AppView.StudentAnalytics} label="My Analytics" icon={BarChartIcon} />
+                            <NavLink view={AppView.OnlineCourses} label="Courses" icon={BookOpenIcon} />
+                            <NavLink view={AppView.Homework} label="Homework" icon={ClipboardCheckIcon} />
+                            <NavLink view={AppView.DigitalLibrary} label="Library" icon={BookOpenIcon} />
+                            <NavLink view={AppView.OnlineExams} label="Online Exams" icon={TargetIcon} />
+                            <NavLink view={AppView.Attendance} label="Attendance" icon={CalendarCheckIcon} />
+                            
+                            <div className="pt-2 border-t border-stone-800 mt-2 mb-2">
+                                <p className="px-3 text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Tools</p>
+                                <NavLink view={AppView.FeynmanBoard} label="Feynman Board" icon={PresentationIcon} />
+                                <NavLink view={AppView.DebateArena} label="Debate Arena" icon={SwordsIcon} />
+                                <NavLink view={AppView.IntelligentTodo} label="Smart To-Do" icon={CheckSquareIcon} />
+                                <NavLink view={AppView.FocusMonitor} label="Focus Monitor" icon={TargetIcon} />
+                                <NavLink view={AppView.GroupChat} label="Group Chat" icon={MessageCircleIcon} />
+                                <NavLink view={AppView.AmbientVoice} label="Ambient Coach" icon={MicIcon} />
+                                <NavLink view={AppView.WellbeingHub} label="Wellbeing Hub" icon={WindIcon} />
+                                <NavLink view={AppView.Gaming} label="Game Zone" icon={Gamepad2Icon} />
+                            </div>
+                        </>
+                    )}
+
+                    {/* Teacher View Links */}
+                    {currentUser.role === 'teacher' && (
+                        <>
+                            <NavLink view={AppView.TeacherDashboard} label="Class Overview" icon={UsersIcon} />
+                            <NavLink view={AppView.Homework} label="Assign Homework" icon={ClipboardCheckIcon} />
+                            <NavLink view={AppView.LeaveManagement} label="Leave Requests" icon={CalendarIcon} />
+                            <div className="pt-2 border-t border-stone-800 mt-2 mb-2">
+                                <p className="px-3 text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Tools Preview</p>
+                                <NavLink view={AppView.StudyPlan} label="Syllabus Creator" icon={BookOpenIcon} />
+                                <NavLink view={AppView.FeynmanBoard} label="Feynman Board" icon={PresentationIcon} />
+                                <NavLink view={AppView.DebateArena} label="Debate Arena" icon={SwordsIcon} />
+                            </div>
+                        </>
+                    )}
+
+                     {/* Parent View Links */}
+                     {currentUser.role === 'parent' && (
+                        <>
+                            <NavLink view={AppView.ParentDashboard} label="Insight Hub" icon={ActivityIcon} />
+                            <NavLink view={AppView.Homework} label="Homework Plan" icon={ClipboardCheckIcon} />
+                            <NavLink view={AppView.Attendance} label="Attendance" icon={CalendarCheckIcon} />
+                            <NavLink view={AppView.LeaveManagement} label="Apply Leave" icon={CalendarIcon} />
+                             <div className="pt-2 border-t border-stone-800 mt-2 mb-2">
+                                <p className="px-3 text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Support</p>
+                                <NavLink view={AppView.WellbeingHub} label="Wellbeing Hub" icon={WindIcon} />
+                            </div>
+                        </>
+                    )}
+
                     </nav>
                 </div>
             </aside>

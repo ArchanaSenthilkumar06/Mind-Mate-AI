@@ -16,6 +16,19 @@ export enum AppView {
     Gaming = 'Gaming',
     FeynmanBoard = 'FeynmanBoard',
     DebateArena = 'DebateArena',
+    StudentAnalytics = 'StudentAnalytics',
+    TeacherDashboard = 'TeacherDashboard',
+    ParentDashboard = 'ParentDashboard',
+    // New Views
+    MyProfile = 'MyProfile',
+    OnlineCourses = 'OnlineCourses',
+    CoursePlayer = 'CoursePlayer', // NEW
+    Homework = 'Homework',
+    DigitalLibrary = 'DigitalLibrary',
+    OnlineExams = 'OnlineExams',
+    ExamTaking = 'ExamTaking', // NEW
+    LeaveManagement = 'LeaveManagement',
+    Attendance = 'Attendance',
 }
 
 export interface Preferences {
@@ -58,8 +71,11 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password?: string; // Should not be stored in frontend state long-term
+  password?: string; 
   groups: string[];
+  role: 'student' | 'teacher' | 'parent';
+  avatar?: string;
+  bio?: string;
 }
 
 export interface StudyGroup {
@@ -114,6 +130,8 @@ export interface TodoItem {
     id: number;
     text: string;
     isCompleted: boolean;
+    date?: string; 
+    color?: string; 
 }
 
 export interface MoodEntry {
@@ -122,4 +140,84 @@ export interface MoodEntry {
     mood: 'Happy' | 'Neutral' | 'Stressed';
     intensity: number;
     tags: string[];
+}
+
+export interface Exam {
+    id: string;
+    subject: string;
+    date: string;
+    time: string;
+    location: string;
+    color: string;
+}
+
+// --- NEW INTERFACES ---
+
+export interface Lesson {
+    id: string;
+    title: string;
+    duration: string;
+    completed: boolean;
+}
+
+export interface Course {
+    id: string;
+    title: string;
+    instructor: string;
+    progress: number;
+    totalLessons: number;
+    thumbnailColor: string;
+    lessons: Lesson[]; // Added lessons
+}
+
+export interface Assignment {
+    id: string;
+    subject: string;
+    title: string;
+    description: string;
+    dueDate: string;
+    status: 'Pending' | 'Completed' | 'Late';
+    assignedBy: string;
+}
+
+export interface Book {
+    id: string;
+    title: string;
+    author: string;
+    coverColor: string;
+    summary: string;
+}
+
+export interface LeaveRequest {
+    id: string;
+    studentId: string;
+    studentName: string;
+    reason: string;
+    dates: string;
+    status: 'Pending' | 'Approved' | 'Rejected';
+    parentName: string;
+}
+
+export interface ExamQuestion {
+    id: number;
+    question: string;
+    options: string[];
+    correctIndex: number;
+}
+
+export interface OnlineExamItem {
+    id: string;
+    title: string;
+    subject: string;
+    duration: string;
+    status: 'Upcoming' | 'Active' | 'Completed';
+    date: string;
+    questions: ExamQuestion[]; // Added questions
+}
+
+export interface AttendanceRecord {
+    id: string;
+    date: string;
+    status: 'Present' | 'Absent' | 'Late';
+    remarks?: string;
 }

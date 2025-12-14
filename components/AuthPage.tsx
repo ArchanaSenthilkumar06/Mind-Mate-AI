@@ -1,15 +1,17 @@
+
 import React, { useState, FormEvent } from 'react';
 import { BookOpenIcon } from './icons/BookOpenIcon';
 
 interface AuthPageProps {
   onLogin: (email: string, password_raw: string) => Promise<void>;
-  onSignUp: (name: string, email: string, password_raw: string) => Promise<void>;
+  onSignUp: (name: string, email: string, password_raw: string, role: 'student' | 'teacher' | 'parent') => Promise<void>;
 }
 
 const AuthPage: React.FC<AuthPageProps> = ({ onLogin, onSignUp }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'student' | 'teacher' | 'parent'>('student');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,7 +26,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, onSignUp }) => {
       if (isLogin) {
         await onLogin(email, password);
       } else {
-        await onSignUp(name, email, password);
+        await onSignUp(name, email, password, selectedRole);
       }
     } catch (err: any) {
       setError(err.message || 'An unknown error occurred.');
@@ -44,16 +46,26 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, onSignUp }) => {
                 {isLogin ? 'Welcome Back!' : 'Create Account'}
             </h2>
             <p className="mt-2 text-sm text-stone-400">
-                {isLogin ? 'Sign in to access your study plans.' : 'Get started with your AI learning companion.'}
+                {isLogin ? 'Sign in to access your dashboard.' : 'Join the Mind Mate learning ecosystem.'}
             </p>
         </div>
         
         <form className="space-y-6" onSubmit={handleSubmit}>
             {!isLogin && (
+                <>
                  <div>
                     <label htmlFor="name" className="text-sm font-medium text-stone-300">Name</label>
                     <input id="name" name="name" type="text" required className="mt-1 block w-full px-3 py-2 bg-stone-800 border border-stone-700 text-stone-100 rounded-lg shadow-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"/>
                 </div>
+                <div>
+                    <label className="text-sm font-medium text-stone-300">I am a...</label>
+                    <div className="grid grid-cols-3 gap-2 mt-1">
+                        <button type="button" onClick={() => setSelectedRole('student')} className={`py-2 text-sm rounded-lg border transition-all ${selectedRole === 'student' ? 'bg-amber-600 border-amber-500 text-white' : 'bg-stone-800 border-stone-700 text-stone-400 hover:bg-stone-700'}`}>Student</button>
+                        <button type="button" onClick={() => setSelectedRole('teacher')} className={`py-2 text-sm rounded-lg border transition-all ${selectedRole === 'teacher' ? 'bg-amber-600 border-amber-500 text-white' : 'bg-stone-800 border-stone-700 text-stone-400 hover:bg-stone-700'}`}>Teacher</button>
+                        <button type="button" onClick={() => setSelectedRole('parent')} className={`py-2 text-sm rounded-lg border transition-all ${selectedRole === 'parent' ? 'bg-amber-600 border-amber-500 text-white' : 'bg-stone-800 border-stone-700 text-stone-400 hover:bg-stone-700'}`}>Parent</button>
+                    </div>
+                </div>
+                </>
             )}
             <div>
                 <label htmlFor="email" className="text-sm font-medium text-stone-300">Email address</label>

@@ -1,3 +1,4 @@
+
 import React, { useState, FormEvent, useEffect } from 'react';
 import { StudyPlan, User, StudyGroup, SharedNote, Flashcard, TopicScore, QuizQuestion, MoodEntry } from '../types';
 import { ChevronDownIcon } from './icons/ChevronDownIcon';
@@ -7,6 +8,7 @@ import { MessageSquareIcon } from './icons/MessageSquareIcon';
 import { ClipboardCheckIcon } from './icons/ClipboardCheckIcon';
 import { SparklesIcon } from './icons/SparklesIcon';
 import { ActivityIcon } from './icons/ActivityIcon';
+import ExamTimetable from './ExamTimetable';
 
 // --- Local Icon Components ---
 const FileTextIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -644,6 +646,9 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = (props) => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2 space-y-6">
+                 {/* Exam Timetable (Added) */}
+                 <ExamTimetable />
+
                 <div className="bg-stone-900 border border-stone-800 p-6 rounded-2xl shadow-lg">
                     <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-stone-100"><ClipboardCheckIcon className="w-6 h-6 text-amber-500"/> Course Topics 📚</h2>
                     <div className="space-y-3">

@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MicIcon } from './icons/MicIcon';
 import { SquareIcon } from './icons/SquareIcon';
 import { SettingsIcon } from './icons/SettingsIcon';
+import { BellIcon } from './icons/BellIcon';
 import { GoogleGenAI } from "@google/genai";
 import { Preferences, StudyPlan, MoodEntry } from '../types';
 
@@ -19,6 +21,7 @@ if (mic) {
 interface LogEntry {
     sender: 'User' | 'Mind Mate';
     text: string;
+    isNudge?: boolean;
 }
 
 interface AmbientVoiceViewProps {
@@ -38,6 +41,7 @@ const AmbientVoiceView: React.FC<AmbientVoiceViewProps> = ({ preferences, plan, 
     const [showSettings, setShowSettings] = useState(false);
     const [coachStyle, setCoachStyle] = useState('Encouraging');
     const [coachLearningPreference, setCoachLearningPreference] = useState(preferences?.learningStyle || 'Visual');
+    const [autoNudgeEnabled, setAutoNudgeEnabled] = useState(true);
 
     const timeoutsRef = useRef<number[]>([]);
 
@@ -62,6 +66,62 @@ const AmbientVoiceView: React.FC<AmbientVoiceViewProps> = ({ preferences, plan, 
             setCoachLearningPreference(preferences.learningStyle);
         }
     }, [preferences]);
+
+    // --- AI Nudge Logic ---
+    const triggerNudge = async () => {
+        if (isThinking) return;
+        setIsThinking(true);
+
+        try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            
+            const courseContext = plan ? `Course: ${plan.courseName}. Completed: ${plan.completedTopics.length} topics.` : 'General Study Session.';
+            const moodContext = moodData ? `User Mood: ${moodData.mood}` : 'Mood: Neutral';
+
+            const prompt = `
+                You are "Mind Mate", an AI study companion.
+                Generate a SHORT, proactive, encouraging nudge or a quick study tip for the student, ${userName}.
+                
+                Context:
+                - ${courseContext}
+                - ${moodContext}
+                - Learning Style: ${coachLearningPreference}
+                
+                Constraint: 
+                - Max 20 words. 
+                - Be spontaneous and helpful. 
+                - Do NOT ask a question, just give a statement.
+            `;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+            });
+
+            const nudgeText = response.text || "Remember to take deep breaths and stay hydrated!";
+            
+            setLog(prev => [...prev, { sender: 'Mind Mate', text: nudgeText, isNudge: true }]);
+            speak(nudgeText);
+
+        } catch (error) {
+            console.error("Nudge generation failed", error);
+        } finally {
+            setIsThinking(false);
+        }
+    };
+
+    // Auto-Nudge Effect
+    useEffect(() => {
+        let timer: ReturnType<typeof setTimeout>;
+        if (autoNudgeEnabled) {
+            // Trigger a nudge after 15 seconds of inactivity/mounting for demo purposes
+            timer = setTimeout(() => {
+                triggerNudge();
+            }, 15000);
+        }
+        return () => clearTimeout(timer);
+    }, [autoNudgeEnabled, plan, moodData]); // Re-set timer if these change
+
 
     const generateCoachingResponse = async (userText: string): Promise<string> => {
         setIsThinking(true);
@@ -193,13 +253,22 @@ const AmbientVoiceView: React.FC<AmbientVoiceViewProps> = ({ preferences, plan, 
         <div className="bg-stone-900 border border-stone-800 p-6 rounded-2xl shadow-xl animate-fade-in">
             <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-bold text-stone-100">Ambient Coach 🎙️</h2>
-                <button 
-                    onClick={() => setShowSettings(!showSettings)}
-                    className="p-2 rounded-full hover:bg-stone-800 text-stone-500 hover:text-stone-300 transition-colors"
-                    title="Coach Settings"
-                >
-                    <SettingsIcon className="w-6 h-6" />
-                </button>
+                <div className="flex gap-2">
+                    <button 
+                        onClick={triggerNudge}
+                        className="p-2 rounded-full hover:bg-stone-800 text-amber-500 hover:text-amber-400 transition-colors"
+                        title="Get an AI Nudge now"
+                    >
+                        <BellIcon className="w-6 h-6" />
+                    </button>
+                    <button 
+                        onClick={() => setShowSettings(!showSettings)}
+                        className="p-2 rounded-full hover:bg-stone-800 text-stone-500 hover:text-stone-300 transition-colors"
+                        title="Coach Settings"
+                    >
+                        <SettingsIcon className="w-6 h-6" />
+                    </button>
+                </div>
             </div>
             
             {showSettings && (
@@ -232,6 +301,16 @@ const AmbientVoiceView: React.FC<AmbientVoiceViewProps> = ({ preferences, plan, 
                                 <option value="Reading/Writing">Reading/Writing (Text, Notes)</option>
                                 <option value="Kinesthetic">Kinesthetic (Hands-on, Examples)</option>
                             </select>
+                        </div>
+                        <div className="md:col-span-2 flex items-center gap-2 mt-2">
+                            <input 
+                                type="checkbox" 
+                                id="autoNudge"
+                                checked={autoNudgeEnabled}
+                                onChange={(e) => setAutoNudgeEnabled(e.target.checked)}
+                                className="w-4 h-4 text-amber-600 bg-stone-800 border-stone-700 rounded focus:ring-amber-500"
+                            />
+                            <label htmlFor="autoNudge" className="text-sm text-stone-300">Enable Proactive AI Nudges</label>
                         </div>
                     </div>
                 </div>
@@ -272,9 +351,12 @@ const AmbientVoiceView: React.FC<AmbientVoiceViewProps> = ({ preferences, plan, 
                 </h3>
                 <div className="space-y-3 text-sm text-stone-300">
                     {log.map((entry, index) => (
-                       <div key={index} className="animate-fade-in">
-                           <span className={`font-bold ${entry.sender === 'User' ? 'text-stone-500' : 'text-amber-500'}`}>{entry.sender}: </span>
-                           {entry.text}
+                       <div key={index} className="animate-fade-in flex items-start gap-2">
+                           {entry.isNudge && <BellIcon className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />}
+                           <div>
+                               <span className={`font-bold ${entry.sender === 'User' ? 'text-stone-500' : 'text-amber-500'}`}>{entry.sender}: </span>
+                               <span className={entry.isNudge ? 'italic text-amber-100' : ''}>{entry.text}</span>
+                           </div>
                        </div>
                     ))}
                     {isListening && <p className="text-stone-500 italic">{note || 'Listening...'}</p>}
