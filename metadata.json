@@ -1,0 +1,7 @@
+{
+  "name": "Mind Mate AI",
+  "description": "A proactive, adaptive AI learning companion to help students overcome procrastination, stress, and isolation with features like AI nudges, mood tracking, and collaborative group study rooms.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
