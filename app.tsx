@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AppState, AppView, Preferences, StudyPlan, User, StudyGroup, SharedNote, Flashcard, TopicScore, Invitation } from './types';
 import SyllabusUploadStep from './components/SyllabusUploadStep';
@@ -13,6 +14,8 @@ import AmbientVoiceView from './components/AmbientVoiceView';
 import IntelligentTodoView from './components/IntelligentTodoView';
 import WellbeingHubView from './components/WellbeingHubView';
 import GamingView from './components/GamingView';
+import FeynmanBoardView from './components/FeynmanBoardView';
+import DebateArenaView from './components/DebateArenaView'; // Import DebateArenaView
 import LandingPage from './components/LandingPage';
 
 import { BookOpenIcon } from './components/icons/BookOpenIcon';
@@ -26,6 +29,8 @@ import { MicIcon } from './components/icons/MicIcon';
 import { CheckSquareIcon } from './components/icons/CheckSquareIcon';
 import { WindIcon } from './components/icons/WindIcon';
 import { Gamepad2Icon } from './components/icons/Gamepad2Icon';
+import { PresentationIcon } from './components/icons/PresentationIcon';
+import { SwordsIcon } from './components/icons/SwordsIcon'; // Import SwordsIcon
 
 
 // Mock Database Initialization
@@ -92,6 +97,9 @@ const App: React.FC = () => {
   // --- UI State ---
   const [isInvitePopoverOpen, setIsInvitePopoverOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  
+  // Gamification: Streak
+  const [streakDays, setStreakDays] = useState(12); // Mocked start streak
   
   // Session management
   useEffect(() => {
@@ -386,6 +394,8 @@ const App: React.FC = () => {
           case AppView.IntelligentTodo: return <IntelligentTodoView />;
           case AppView.WellbeingHub: return <WellbeingHubView />;
           case AppView.Gaming: return <GamingView />;
+          case AppView.FeynmanBoard: return <FeynmanBoardView topics={studyPlan?.topics || []} />;
+          case AppView.DebateArena: return <DebateArenaView topics={studyPlan?.topics || []} />; // Render DebateArenaView
           default: return renderStudyPlanContent();
       }
   }
@@ -458,10 +468,16 @@ const App: React.FC = () => {
                 <div className="p-2 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg text-white shadow-md">
                     <BookOpenIcon className="h-6 w-6" />
                 </div>
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-200">Mind Mate AI</h1>
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-200 hidden md:block">Mind Mate AI</h1>
               </div>
               
               <div className="flex items-center gap-2 sm:gap-4">
+                   {/* Streak Counter - Gamification */}
+                   <div className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 rounded-full border border-stone-700" title={`${streakDays} Day Streak!`}>
+                        <span className="text-lg">🔥</span>
+                        <span className="text-sm font-bold text-orange-500">{streakDays}</span>
+                   </div>
+
                    <div className="relative">
                      <button onClick={() => setIsInvitePopoverOpen(prev => !prev)} className="relative p-2 rounded-full hover:bg-stone-800 transition-colors">
                         <BellIcon className="h-5 w-5 text-stone-400" />
@@ -512,6 +528,8 @@ const App: React.FC = () => {
                 <div className="bg-stone-900 rounded-xl shadow-md border border-stone-800 p-4 sticky top-24">
                     <nav className="space-y-2">
                     <NavLink view={AppView.StudyPlan} label="Study Plan" icon={LayoutDashboardIcon} />
+                    <NavLink view={AppView.FeynmanBoard} label="Feynman Board" icon={PresentationIcon} />
+                    <NavLink view={AppView.DebateArena} label="Debate Arena" icon={SwordsIcon} />
                     <NavLink view={AppView.IntelligentTodo} label="Smart To-Do" icon={CheckSquareIcon} />
                     <NavLink view={AppView.FocusMonitor} label="Focus Monitor" icon={TargetIcon} />
                     <NavLink view={AppView.GroupChat} label="Group Chat" icon={MessageCircleIcon} />

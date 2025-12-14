@@ -1,3 +1,4 @@
+
 export enum AppState {
   Syllabus = 'Syllabus',
   Preferences = 'Preferences',
@@ -13,6 +14,8 @@ export enum AppView {
     IntelligentTodo = 'IntelligentTodo',
     WellbeingHub = 'WellbeingHub',
     Gaming = 'Gaming',
+    FeynmanBoard = 'FeynmanBoard',
+    DebateArena = 'DebateArena',
 }
 
 export interface Preferences {
