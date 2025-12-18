@@ -1,82 +1,94 @@
-🧠 Mind Mate AI
-The Proactive, Adaptive AI Learning Ecosystem
-![alt text](https://img.shields.io/badge/React-19.0-blue.svg)
+# 🧠 Mind Mate AI
+### *The Proactive, Adaptive AI Learning Ecosystem*
 
-![alt text](https://img.shields.io/badge/Tailwind-3.4-cyan.svg)
+[![React](https://img.shields.io/badge/React-19.0-blue.svg?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-cyan.svg?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Gemini API](https://img.shields.io/badge/Google_Gemini-Powered-orange.svg?style=for-the-badge&logo=google-gemini)](https://ai.google.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-![alt text](https://img.shields.io/badge/Google_Gemini-Powered-orange.svg)
+**Mind Mate AI** is a state-of-the-art EdTech platform built on behavioral psychology principles. Unlike static learning tools, Mind Mate proactively manages cognitive load, detects student frustration through interaction patterns, and adapts its tutoring style to the user's emotional and academic needs.
 
-![alt text](https://img.shields.io/badge/License-MIT-yellow.svg)
-Mind Mate AI is not just another study app; it is a behavioral-science-backed learning companion designed to bridge the gap between academic pressure and student wellbeing. By leveraging the Google Gemini API, Mind Mate AI proactively intervenes when students are frustrated, automates the "busy work" of planning, and provides a safe, collaborative environment for mastery.
-✨ Key Features
-🎓 For Students (The Learning Lab)
-AI Syllabus Architect: Upload a raw syllabus text/PDF and get a structured, multi-week study plan with curated YouTube resources and auto-generated quizzes.
-Focus Monitor & Frustration Detection: A smart Pomodoro timer that uses behavioral patterns to detect when a student is stuck or frustrated, triggering a "Wellbeing Intervention."
-The Feynman Board: Mastery evaluation tool where you "teach" the AI a concept. It grades you on simplicity and identifies your knowledge gaps.
-Live Tutor (Voice API): Real-time, low-latency audio conversations using the Gemini Live API for a natural 1-on-1 tutoring experience.
-Snap & Solve: Visual AI that solves math problems or explains complex diagrams from a single photo.
-Memory Master: Uses mnemonics, memory palaces, and narrative chaining to help memorize lists and facts.
-Career Compass: Analyzes your interests and performance to map out future career paths and "Day in the Life" simulations.
-🍎 For Teachers (The Command Center)
-Smart Grader: Paste student essays or answers to receive instant suggested scores and constructive, rubric-based feedback.
-Class Analytics: Heatmaps of class mood, average focus hours, and real-time alerts for "at-risk" students.
-Management Suite: Handle leave requests, track attendance, and assign interactive homework.
-🏠 For Parents (The Insight Hub)
-Wellbeing Oversight: Monitor your child's stress levels and sleep consistency without overstepping.
-Homework Helper: Real-time visibility into deadlines and completion rates.
-🛠 Tech Stack
-Frontend: React 19 (ESM), Tailwind CSS (Theming engine)
-AI Engine: Google Gemini API
-gemini-3-pro-preview (Complex reasoning & Chat)
-gemini-2.5-flash (Fast task execution & Vision)
-gemini-2.5-flash-native-audio (Live Voice API)
-veo-3.1-fast-generate (AI relaxation video generation)
-State Management: React Hooks & Local Storage (Mock DB)
-Speech: Web Speech API (Text-to-Speech) and Speech Recognition (Legacy Support)
-🎨 Visual Identity & Theming
-Mind Mate AI features a state-of-the-art Theming Engine allowing users to switch environments based on their mood or preference:
-🌌 Cosmic Slate: Dark, high-contrast mode for deep focus.
-☁️ Porcelain: Clean, light mode for day-time productivity.
-🎀 Dreamhouse: High-energy, vibrant aesthetic.
-🛡️ Hero Tech: Industrial, sleek "Avengers" inspired UI.
-🚀 Getting Started
-Prerequisites
-Node.js (Latest LTS)
-A Google Gemini API Key (Get one here)
-Installation
-Clone the repository:
-code
-Bash
-git clone https://github.com/yourusername/mind-mate-ai.git
-cd mind-mate-ai
-Set up environment variables:
-Create a .env file in the root directory:
-code
-Env
-API_KEY=your_gemini_api_key_here
-Install dependencies:
-code
-Bash
-npm install
-Run the development server:
-code
-Bash
-npm run dev
-🧠 Behavioral Psychology Integration
-Mind Mate AI implements several psychological frameworks:
-Feynman Technique: Forcing students to simplify concepts to ensure true cognitive retention.
-Method of Loci: Visualizing data in "Memory Palaces" for long-term storage.
-Growth Mindset Nudges: AI "Ambient Coach" provides spontaneous affirmations to combat the "Inner Critic."
-Pomodoro Technique: Time-boxed focus sessions with automated "Cognitive Breaks."
-🤝 Contributing
-We welcome contributions! Whether it's adding new AI prompts, improving the UX, or fixing bugs:
-Fork the Project.
-Create your Feature Branch (git checkout -b feature/AmazingFeature).
-Commit your Changes (git commit -m 'Add some AmazingFeature').
-Push to the Branch (git push origin feature/AmazingFeature).
-Open a Pull Request.
-📄 License
-Distributed under the MIT License. See LICENSE for more information.
-🌟 Acknowledgments
-Google GenAI Team for the incredible Gemini SDK.
-The EdTech community for insights into student mental health.
+---
+
+## ✨ Core Ecosystem
+
+### 🎓 For Students: The Learning Lab
+*   **AI Syllabus Architect:** Instantly transforms raw syllabus PDFs/text into structured, multi-week study plans with curated YouTube resources and automated quizzes.
+*   **Predictive Focus Monitor:** A smart Pomodoro timer that monitors behavioral cues. If a user repeatedly deletes text or stalls, the AI triggers a **Wellbeing Intervention**.
+*   **The Feynman Board:** A mastery tool where students "teach" concepts to the AI. It evaluates simplicity, flags jargon, and identifies knowledge gaps.
+*   **Live Tutor (Voice API):** Low-latency, real-time audio tutoring using the **Gemini 2.5 Flash Native Audio** model for a natural conversational experience.
+*   **Snap & Solve:** Visual AI that solves handwritten math problems or explains complex scientific diagrams from a single photo.
+*   **Career Compass:** Maps study performance and personal interests to future career paths with "Day in the Life" simulations.
+
+### 🍎 For Teachers: The Command Center
+*   **Smart Grader:** AI-powered rubric-based assessment. Paste student work for instant scoring, constructive feedback, and specific correction suggestions.
+*   **Class Analytics:** Heatmaps of student mood trends, average focus hours, and "At-Risk" alerts for students struggling with specific concepts.
+
+### 🏠 For Parents: The Insight Hub
+*   **Proactive Oversight:** Monitor stress trends and upcoming exam schedules without intrusive tracking.
+*   **Homework Helper:** Real-time visibility into deadlines and AI-assisted tutoring for late-night study sessions.
+
+---
+
+## 🎨 Visual Identity & Theming
+
+Mind Mate AI features a **Mood-Responsive UI** engine allowing users to choose an environment that matches their mental state:
+
+*   🌌 **Cosmic Slate:** High-contrast dark mode designed for deep focus and late-night research.
+*   ☁️ **Porcelain:** Clean, minimal light mode for high-energy daytime productivity.
+*   🎀 **Dreamhouse:** A vibrant, high-energy aesthetic for creative study sessions.
+*   🛡️ **Hero Tech:** An industrial, tech-heavy "Avengers" inspired UI for those who thrive in high-stakes environments.
+
+---
+
+## 🛠 Tech Stack & AI Integration
+
+*   **Frontend:** React 19 (ES6 Modules), Tailwind CSS (Theming Engine).
+*   **AI Engine (Google Gemini API):**
+    *   `gemini-3-pro-preview`: Complex reasoning, search grounding, and deep-dive research.
+    *   `gemini-2.5-flash`: Fast task execution, Structured JSON outputs (Grading), and Vision.
+    *   `gemini-2.5-flash-native-audio`: Real-time voice conversations (Live Tutor).
+    *   `veo-3.1-fast-generate`: AI-generated relaxation videos for the Wellbeing Hub.
+
+---
+
+## 🧠 Behavioral Psychology Integration
+
+Mind Mate AI implements verified cognitive frameworks:
+1.  **Feynman Technique:** Enforced simplification to ensure neural retention.
+2.  **Method of Loci (Memory Palaces):** AI-generated spatial mnemonics for long-term data storage.
+3.  **Growth Mindset Nudges:** Proactive AI "Ambient Coach" interventions to combat the "Inner Critic" during high-stress periods.
+4.  **Pomodoro & Cognitive Breaks:** Structured focus cycles with automated relaxation triggers.
+
+---
+
+## 🚀 Installation & Setup
+
+1.  **Clone the Repository:**
+    ```bash
+    git clone https://github.com/your-username/mind-mate-ai.git
+    cd mind-mate-ai
+    ```
+
+2.  **API Configuration:**
+    Ensure you have a valid Google Gemini API key from [AI Studio](https://aistudio.google.com/). The app expects the key as `process.env.API_KEY`.
+
+3.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+
+4.  **Run Development Server:**
+    ```bash
+    npm run dev
+    ```
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+**Built with ❤️ for a future where technology understands how we feel, not just what we know.**
