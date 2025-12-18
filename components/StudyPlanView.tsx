@@ -9,6 +9,7 @@ import { ClipboardCheckIcon } from './icons/ClipboardCheckIcon';
 import { SparklesIcon } from './icons/SparklesIcon';
 import { ActivityIcon } from './icons/ActivityIcon';
 import ExamTimetable from './ExamTimetable';
+import { GoogleGenAI, Type } from "@google/genai";
 
 // --- Local Icon Components ---
 const FileTextIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -184,6 +185,7 @@ const TopicDetails: React.FC<{
     const [noteContent, setNoteContent] = useState('');
     const [flashcardFront, setFlashcardFront] = useState('');
     const [flashcardBack, setFlashcardBack] = useState('');
+    const [isGeneratingCards, setIsGeneratingCards] = useState(false);
 
     const handleAddNoteSubmit = () => {
         if (noteContent.trim()) {
@@ -199,6 +201,47 @@ const TopicDetails: React.FC<{
             setFlashcardBack('');
         }
     };
+
+    const handleAutoGenerateFlashcards = async () => {
+        setIsGeneratingCards(true);
+        try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const prompt = `Generate 3 high-quality flashcards for the topic "${topic.topicName}". 
+            Subtopics include: ${topic.subTopics.join(', ')}.
+            Return ONLY a JSON array of objects with "front" and "back" string properties.`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+                config: {
+                    responseMimeType: 'application/json',
+                    responseSchema: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                front: { type: Type.STRING },
+                                back: { type: Type.STRING },
+                            },
+                            required: ['front', 'back']
+                        }
+                    }
+                }
+            });
+
+            const cards = JSON.parse(response.text);
+            if (Array.isArray(cards)) {
+                cards.forEach((card: any) => {
+                    onAddFlashcard(card.front, card.back);
+                });
+            }
+        } catch (e) {
+            console.error("Failed to generate cards", e);
+            alert("Could not auto-generate cards right now.");
+        } finally {
+            setIsGeneratingCards(false);
+        }
+    }
     
     const tabs = [
         { id: 'summary', label: 'Summary', icon: FileTextIcon },
@@ -258,10 +301,20 @@ const TopicDetails: React.FC<{
                 )}
                 {activeTab === 'flashcards' && (
                     <div>
+                        <div className="flex justify-between items-center mb-4">
+                            <h4 className="font-semibold text-stone-200">Deck</h4>
+                            <button 
+                                onClick={handleAutoGenerateFlashcards} 
+                                disabled={isGeneratingCards}
+                                className="px-3 py-1 text-xs font-bold text-white bg-purple-600 rounded-full hover:bg-purple-700 flex items-center gap-1 shadow-md disabled:opacity-50"
+                            >
+                                {isGeneratingCards ? 'Generating...' : <><SparklesIcon className="w-3 h-3"/> Auto-Gen with AI</>}
+                            </button>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-48 overflow-y-auto pr-2 mb-4">
                             {flashcards.length > 0 ? flashcards.map(card => (
                                 <FlashcardItem key={card.id} card={card} />
-                            )) : <p className="text-sm text-stone-500 sm:col-span-2">No flashcards yet. Create one!</p>}
+                            )) : <p className="text-sm text-stone-500 sm:col-span-2">No flashcards yet. Create one or ask AI!</p>}
                         </div>
                         <div className="border-t border-stone-700 pt-4">
                             <input value={flashcardFront} onChange={e => setFlashcardFront(e.target.value)} placeholder="Front of card" className="w-full text-sm p-2 mb-2 border rounded-md bg-stone-800 border-stone-600 text-stone-200 placeholder-stone-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" />

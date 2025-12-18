@@ -6,6 +6,8 @@ export enum AppState {
   Plan = 'Plan',
 }
 
+export type Theme = 'default' | 'light' | 'barbie' | 'avengers';
+
 export enum AppView {
     StudyPlan = 'StudyPlan',
     FocusMonitor = 'FocusMonitor',
@@ -22,13 +24,20 @@ export enum AppView {
     // New Views
     MyProfile = 'MyProfile',
     OnlineCourses = 'OnlineCourses',
-    CoursePlayer = 'CoursePlayer', // NEW
+    CoursePlayer = 'CoursePlayer', 
     Homework = 'Homework',
     DigitalLibrary = 'DigitalLibrary',
     OnlineExams = 'OnlineExams',
-    ExamTaking = 'ExamTaking', // NEW
+    ExamTaking = 'ExamTaking', 
     LeaveManagement = 'LeaveManagement',
     Attendance = 'Attendance',
+    Research = 'Research',
+    MnemonicMaster = 'MnemonicMaster',
+    SnapSolve = 'SnapSolve',
+    LiveTutor = 'LiveTutor',
+    SmartGrader = 'SmartGrader',
+    CareerCompass = 'CareerCompass', // NEW
+    SmartNotes = 'SmartNotes', // NEW
 }
 
 export interface Preferences {

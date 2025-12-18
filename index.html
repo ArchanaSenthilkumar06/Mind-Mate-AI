@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,63 +9,172 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind Configuration for Enhanced Palette & Theming -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Enable class-based dark mode if needed later
+            theme: {
+                extend: {
+                    colors: {
+                        // MAPPED TO CSS VARIABLES FOR THEMING
+                        stone: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: 'rgb(var(--c-text-200) / <alpha-value>)', // Primary Text
+                            300: '#cbd5e1',
+                            400: 'rgb(var(--c-text-400) / <alpha-value>)', // Secondary Text
+                            500: '#64748b',
+                            600: '#475569',
+                            700: 'rgb(var(--c-bg-700) / <alpha-value>)', // Borders/Accents
+                            800: 'rgb(var(--c-bg-800) / <alpha-value>)', // Element BG
+                            900: 'rgb(var(--c-bg-900) / <alpha-value>)', // Card BG
+                            950: 'rgb(var(--c-bg-950) / <alpha-value>)', // Main BG
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: 'rgb(var(--c-accent-500) / <alpha-value>)', // Primary Accent
+                            600: 'rgb(var(--c-accent-600) / <alpha-value>)', // Darker Accent
+                            900: '#78350f', 
+                        },
+                        // REPLACED VIOLET WITH "LIGHT BLACK" (Zinc/Charcoal tones)
+                        violet: {
+                            500: '#71717a', // Zinc 500 - Medium Charcoal
+                            600: '#52525b', // Zinc 600 - Darker Charcoal
+                            900: '#27272a', // Zinc 800 - Deep Charcoal
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2.5s infinite linear',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.98)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style type="text/tailwindcss">
-        /* Custom scrollbar for a cleaner look */
+        /* THEME VARIABLES (RGB for Tailwind opacity support) */
+        :root {
+            /* DEFAULT: Cosmic Slate (Dark Mode) */
+            --c-bg-950: 2 6 23;      /* #020617 */
+            --c-bg-900: 15 23 42;    /* #0f172a */
+            --c-bg-800: 30 41 59;    /* #1e293b */
+            --c-bg-700: 51 65 85;    /* #334155 */
+            
+            --c-text-200: 226 232 240; /* #e2e8f0 (Light Text) */
+            --c-text-400: 148 163 184; /* #94a3b8 */
+            
+            --c-accent-500: 245 158 11; /* Amber */
+            --c-accent-600: 217 119 6;
+            
+            /* Updated Gradient: Replaced Purple/Violet with Neutral Gray/Zinc */
+            --bg-image: radial-gradient(circle at 15% 50%, rgba(113, 113, 122, 0.12), transparent 25%), 
+                        radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.08), transparent 25%);
+        }
+
+        .theme-light {
+            /* Porcelain (Light Mode) */
+            --c-bg-950: 248 250 252;   /* Slate-50: Main Background */
+            --c-bg-900: 255 255 255;   /* White: Card Background */
+            --c-bg-800: 241 245 249;   /* Slate-100: Element BG */
+            --c-bg-700: 226 232 240;   /* Slate-200: Borders */
+            
+            --c-text-200: 15 23 42;    /* Slate-900: Primary Text (Dark) */
+            --c-text-400: 100 116 139; /* Slate-500: Secondary Text */
+            
+            --c-accent-500: 245 158 11; /* Amber-500 */
+            --c-accent-600: 217 119 6;  /* Amber-600 */
+            
+            --bg-image: radial-gradient(circle at 15% 50%, rgba(161, 161, 170, 0.1), transparent 25%), 
+                        radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.05), transparent 25%);
+        }
+
+        .theme-barbie {
+            /* Barbie: Dreamhouse (Pink/Purple/Cyan) */
+            --c-bg-950: 80 7 36;     /* #500724 (Deep Pink) */
+            --c-bg-900: 131 24 67;   /* #831843 */
+            --c-bg-800: 157 23 77;   /* #9d174d */
+            --c-bg-700: 190 24 93;   /* #be185d */
+            --c-text-200: 255 241 242; /* #fff1f2 */
+            --c-text-400: 251 207 232; /* #fbcfe8 */
+            --c-accent-500: 34 211 238; /* #22d3ee (Cyan pop) */
+            --c-accent-600: 8 145 178;  /* #0891b2 */
+            --bg-image: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.15), transparent 20%),
+                        linear-gradient(135deg, #500724 0%, #831843 100%);
+        }
+
+        .theme-avengers {
+            /* Avengers: Hero Tech (Dark Metal/Red/Blue) */
+            --c-bg-950: 10 10 10;    /* #0a0a0a (Tech Black) */
+            --c-bg-900: 23 23 23;    /* #171717 */
+            --c-bg-800: 38 38 38;    /* #262626 */
+            --c-bg-700: 64 64 64;    /* #404040 */
+            
+            --c-text-200: 229 231 235; /* #e5e7eb */
+            --c-text-400: 156 163 175; /* #9ca3af */
+            
+            --c-accent-500: 239 68 68; /* #ef4444 (Iron Man Red) */
+            --c-accent-600: 220 38 38; /* #dc2626 */
+            
+            --bg-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px),
+                        radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), transparent 60%);
+        }
+
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
+            height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #1c1917; /* stone-900 */
+            background: rgb(var(--c-bg-950));
         }
         ::-webkit-scrollbar-thumb {
-            background: #44403c; /* stone-700 */
+            background: rgb(var(--c-bg-700));
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #57534e; /* stone-600 */
+            background: rgb(var(--c-accent-600)); /* Interactive scrollbar */
         }
         
-        /* Animations */
-        @keyframes fade-in {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.3s ease-out forwards;
+        body {
+            @apply bg-stone-950 text-stone-200 antialiased font-sans;
+            background-image: var(--bg-image);
+            background-attachment: fixed;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            @apply bg-stone-900/70 backdrop-blur-md border border-stone-800 shadow-xl;
         }
         
-        @keyframes slide-up {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-up {
-            animation: slide-up 0.8s ease-out forwards;
-        }
-        
-        @keyframes gradient-x {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .animate-gradient-x {
-            background-size: 200% 200%;
-            animation: gradient-x 15s ease infinite;
+        .glass-card {
+            @apply bg-stone-800/50 backdrop-blur-sm border border-stone-700/50 hover:bg-stone-800/80 transition-all duration-300;
         }
 
-        .delay-100 { animation-delay: 100ms; }
-        .delay-200 { animation-delay: 200ms; }
-        .delay-300 { animation-delay: 300ms; }
-
-        /* For 3D flip effect on flashcards */
+        /* 3D Flip */
         .flashcard-container {
             perspective: 1000px;
         }
@@ -72,7 +182,7 @@
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.6s;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
         .flashcard-container.flipped .flashcard-inner {
@@ -88,39 +198,23 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
         }
         .flashcard-back {
             transform: rotateY(180deg);
         }
 
-        /* Group Chat styles - Dark & Gold Theme */
+        /* Chat Bubbles */
         .chat-bubble-user {
-            @apply bg-gradient-to-r from-amber-600 to-yellow-600 text-white self-end rounded-l-lg rounded-br-lg shadow-md;
+            @apply bg-gradient-to-br from-amber-600 to-amber-700 text-white self-end rounded-2xl rounded-br-none shadow-md border border-amber-500/20;
         }
         .chat-bubble-other {
-            @apply bg-stone-800 border border-stone-700 text-stone-200 self-start rounded-r-lg rounded-bl-lg shadow-sm;
+            @apply bg-stone-800 border border-stone-700 text-stone-200 self-start rounded-2xl rounded-bl-none shadow-sm;
         }
         .chat-bubble-ai {
-            @apply bg-stone-800 border border-amber-500/30 text-amber-100 self-start rounded-r-lg rounded-bl-lg shadow-sm;
+            @apply bg-stone-800/80 border border-amber-500/30 text-amber-100 self-start rounded-2xl rounded-bl-none shadow-sm backdrop-blur-sm;
         }
         
-        /* Pulse animation for listening button */
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.7;
-                transform: scale(1.05);
-            }
-        }
-        .animate-pulse-subtle {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        /* Gradient Text Utility */
         .text-gradient {
             @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-200;
         }
@@ -138,7 +232,7 @@
 }
 </script>
 </head>
-<body class="bg-stone-950 font-sans text-stone-200">
+<body class="bg-stone-950 font-sans text-stone-200 selection:bg-amber-500/30">
     <div id="app"></div>
     <script type="module" src="/index.tsx"></script>
 </body>

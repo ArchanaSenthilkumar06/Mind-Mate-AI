@@ -1,10 +1,11 @@
 
-import React, { useState, FormEvent, useEffect } from 'react';
+import React, { useState, FormEvent, useEffect, useRef } from 'react';
 import { TodoItem } from '../types';
 import Loader from './Loader';
 import { CalendarIcon } from './icons/CalendarIcon';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
 import { ChevronRightIcon } from './icons/ChevronRightIcon';
+import { BellIcon } from './icons/BellIcon';
 
 const bigTaskKeywords = ['essay', 'research paper', 'study for final', 'project', 'presentation'];
 
@@ -41,6 +42,57 @@ const IntelligentTodoView: React.FC = () => {
     // Calendar State
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [currentMonth, setCurrentMonth] = useState(new Date());
+
+    // --- ALARM STATE ---
+    const [alarmTime, setAlarmTime] = useState('');
+    const [alarmActive, setAlarmActive] = useState(false);
+    const [showAlarmModal, setShowAlarmModal] = useState(false);
+    const [currentTimeDisplay, setCurrentTimeDisplay] = useState('');
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        // Initialize Audio
+        audioRef.current = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
+        audioRef.current.loop = true;
+
+        const timer = setInterval(() => {
+            const now = new Date();
+            // Format HH:MM for input comparison
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const timeStr = `${hours}:${minutes}`;
+            
+            setCurrentTimeDisplay(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+
+            if (alarmActive && timeStr === alarmTime && !showAlarmModal) {
+                triggerAlarm();
+            }
+        }, 1000);
+
+        return () => {
+            clearInterval(timer);
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+        };
+    }, [alarmActive, alarmTime, showAlarmModal]);
+
+    const triggerAlarm = () => {
+        setShowAlarmModal(true);
+        setAlarmActive(false); // Turn off toggle so it doesn't re-trigger immediately
+        if (audioRef.current) {
+            audioRef.current.play().catch(e => console.error("Audio play failed", e));
+        }
+    };
+
+    const dismissAlarm = () => {
+        setShowAlarmModal(false);
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
+    };
 
     const handleAddTask = (e: FormEvent, specificDate?: Date) => {
         e.preventDefault();
@@ -168,7 +220,7 @@ const IntelligentTodoView: React.FC = () => {
     const displayedTasks = tasks.filter(t => t.date === selectedDateStr);
 
     return (
-        <div className="bg-stone-900 border border-stone-800 p-6 rounded-2xl shadow-xl animate-fade-in min-h-[600px]">
+        <div className="bg-stone-900 border border-stone-800 p-6 rounded-2xl shadow-xl animate-fade-in min-h-[600px] relative">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                  <div className="flex items-center gap-3">
                      <div className="p-2 bg-purple-900/30 rounded-lg text-purple-500">
@@ -176,22 +228,51 @@ const IntelligentTodoView: React.FC = () => {
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-stone-100">Intelligent Planner</h2>
-                        <p className="text-stone-400 text-sm">Organize your tasks by date.</p>
+                        <p className="text-stone-400 text-sm">Organize & Schedule.</p>
                     </div>
                 </div>
-                <div className="flex bg-stone-800 p-1 rounded-lg border border-stone-700">
-                    <button 
-                        onClick={() => setViewMode('calendar')}
-                        className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === 'calendar' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-400 hover:text-stone-200'}`}
-                    >
-                        Calendar
-                    </button>
-                    <button 
-                        onClick={() => setViewMode('weekly')}
-                        className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === 'weekly' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-400 hover:text-stone-200'}`}
-                    >
-                        Weekly Board
-                    </button>
+
+                {/* Alarm & View Controls */}
+                <div className="flex items-center gap-4">
+                    {/* Alarm Widget */}
+                    <div className="flex items-center bg-stone-950 p-1.5 px-3 rounded-xl border border-stone-800 gap-3">
+                        <span className="text-xs font-mono text-stone-400 min-w-[60px] text-center">{currentTimeDisplay}</span>
+                        <div className="h-4 w-px bg-stone-800"></div>
+                        <input 
+                            type="time" 
+                            value={alarmTime} 
+                            onChange={(e) => setAlarmTime(e.target.value)} 
+                            className="bg-transparent text-stone-200 text-sm focus:outline-none w-20 cursor-pointer"
+                        />
+                        <button 
+                            onClick={() => {
+                                if (!alarmTime) {
+                                    alert("Please set a time first.");
+                                    return;
+                                }
+                                setAlarmActive(!alarmActive);
+                            }}
+                            className={`p-1.5 rounded-full transition-all ${alarmActive ? 'bg-amber-500 text-white shadow-lg animate-pulse-subtle' : 'text-stone-500 hover:text-stone-300'}`}
+                            title={alarmActive ? "Alarm ON" : "Set Alarm"}
+                        >
+                            <BellIcon className="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    <div className="flex bg-stone-800 p-1 rounded-lg border border-stone-700">
+                        <button 
+                            onClick={() => setViewMode('calendar')}
+                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === 'calendar' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-400 hover:text-stone-200'}`}
+                        >
+                            Calendar
+                        </button>
+                        <button 
+                            onClick={() => setViewMode('weekly')}
+                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === 'weekly' ? 'bg-amber-600 text-white shadow-sm' : 'text-stone-400 hover:text-stone-200'}`}
+                        >
+                            Weekly Board
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -347,6 +428,28 @@ const IntelligentTodoView: React.FC = () => {
                     </div>
                 </div>
             </div>
+            )}
+
+            {/* Alarm Modal Overlay */}
+            {showAlarmModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md animate-fade-in" onClick={dismissAlarm}>
+                    <div className="text-center p-8 bg-stone-900 border border-amber-500/50 rounded-3xl shadow-[0_0_50px_rgba(245,158,11,0.3)] max-w-sm w-full mx-4" onClick={e => e.stopPropagation()}>
+                        <div className="mb-6 flex justify-center">
+                            <div className="p-6 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full shadow-xl animate-bounce">
+                                <BellIcon className="w-12 h-12 text-white" />
+                            </div>
+                        </div>
+                        <h2 className="text-3xl font-extrabold text-white mb-2">Time to Study!</h2>
+                        <p className="text-stone-400 mb-8">Grab your books and let's get productive.</p>
+                        
+                        <button 
+                            onClick={dismissAlarm}
+                            className="w-full py-4 bg-white text-stone-900 font-bold text-lg rounded-xl hover:bg-stone-200 transition-transform active:scale-95"
+                        >
+                            Let's Go! 🚀
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     );

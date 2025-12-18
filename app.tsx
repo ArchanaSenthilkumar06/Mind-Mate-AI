@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { AppState, AppView, Preferences, StudyPlan, User, StudyGroup, SharedNote, Flashcard, TopicScore, Invitation, Course, Assignment, Book, OnlineExamItem, LeaveRequest, AttendanceRecord } from './types';
+import { AppState, AppView, Preferences, StudyPlan, User, StudyGroup, SharedNote, Flashcard, TopicScore, Invitation, Course, Assignment, Book, OnlineExamItem, LeaveRequest, AttendanceRecord, Theme } from './types';
 import SyllabusUploadStep from './components/SyllabusUploadStep';
 import PreferencesStep from './components/PreferencesStep';
 import StudyPlanView from './components/StudyPlanView';
@@ -28,6 +28,13 @@ import OnlineExamView from './components/OnlineExamView';
 import ExamTakingView from './components/ExamTakingView'; // NEW
 import LeaveManagementView from './components/LeaveManagementView';
 import AttendanceView from './components/AttendanceView'; 
+import ResearchView from './components/ResearchView'; // NEW
+import MnemonicView from './components/MnemonicView'; // NEW
+import SnapSolveView from './components/SnapSolveView'; // NEW
+import LiveTutorView from './components/LiveTutorView'; // NEW
+import SmartGraderView from './components/SmartGraderView'; // NEW
+import CareerCompassView from './components/CareerCompassView'; // NEW
+import SmartNotesView from './components/SmartNotesView'; // NEW
 import LandingPage from './components/LandingPage';
 
 import { BookOpenIcon } from './components/icons/BookOpenIcon';
@@ -49,6 +56,16 @@ import { BarChartIcon } from './components/icons/BarChartIcon';
 import { ClipboardCheckIcon } from './components/icons/ClipboardCheckIcon';
 import { CalendarIcon } from './components/icons/CalendarIcon';
 import { CalendarCheckIcon } from './components/icons/CalendarCheckIcon'; 
+import { SettingsIcon } from './components/icons/SettingsIcon';
+import { SunIcon } from './components/icons/SunIcon';
+import { MoonIcon } from './components/icons/MoonIcon';
+import { SearchIcon } from './components/icons/SearchIcon'; // NEW
+import { LightbulbIcon } from './components/icons/LightbulbIcon'; // NEW
+import { CameraIcon } from './components/icons/CameraIcon'; // NEW
+import { HeadphonesIcon } from './components/icons/HeadphonesIcon'; // NEW
+import { GraduationCapIcon } from './components/icons/GraduationCapIcon'; // NEW
+import { CompassIcon } from './components/icons/CompassIcon'; // NEW
+import { PenToolIcon } from './components/icons/PenToolIcon'; // NEW
 
 
 // Mock Database Initialization
@@ -175,6 +192,8 @@ const App: React.FC = () => {
   const [syllabusText, setSyllabusText] = useState<string>('');
   const [studyPlan, setStudyPlan] = useState<StudyPlan | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentTheme, setCurrentTheme] = useState<Theme>('default');
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
   
   // --- Auth State ---
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -207,7 +226,8 @@ const App: React.FC = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   
   // Gamification: Streak
-  const [streakDays, setStreakDays] = useState(12); // Mocked start streak
+  const [streakDays, setStreakDays] = useState(0);
+  const [showStreakAnimation, setShowStreakAnimation] = useState(false);
   
   // Session management
   useEffect(() => {
@@ -227,6 +247,62 @@ const App: React.FC = () => {
     }
     setAuthLoading(false);
   }, [users]);
+
+  // Streak Calculation Effect
+  useEffect(() => {
+      if (!currentUser || currentUser.role !== 'student') return;
+
+      const STRAGE_KEY = `streak_data_${currentUser.id}`;
+      const today = new Date().toLocaleDateString();
+      
+      try {
+          const storedData = localStorage.getItem(STRAGE_KEY);
+          let newStreak = 1;
+          let shouldAnimate = false;
+
+          if (storedData) {
+              const { count, lastDate } = JSON.parse(storedData);
+              
+              if (lastDate === today) {
+                  // Already logged today, keep count
+                  newStreak = count;
+              } else {
+                  // Check if yesterday
+                  const yesterday = new Date();
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  const yesterdayStr = yesterday.toLocaleDateString();
+
+                  if (lastDate === yesterdayStr) {
+                      newStreak = count + 1;
+                      shouldAnimate = true;
+                  } else {
+                      // Streak broken (or gap > 1 day)
+                      newStreak = 1;
+                      shouldAnimate = true; // New streak started
+                  }
+              }
+          } else {
+              // First time
+              shouldAnimate = true;
+          }
+
+          setStreakDays(newStreak);
+          if (shouldAnimate) {
+              setShowStreakAnimation(true);
+              setTimeout(() => setShowStreakAnimation(false), 3000);
+          }
+
+          localStorage.setItem(STRAGE_KEY, JSON.stringify({
+              count: newStreak,
+              lastDate: today
+          }));
+
+      } catch (e) {
+          console.error("Streak logic error", e);
+          setStreakDays(1);
+      }
+
+  }, [currentUser]);
 
 
   const handleSyllabusSubmit = (text: string) => {
@@ -577,6 +653,13 @@ const App: React.FC = () => {
           case AppView.ExamTaking: return activeExam ? <ExamTakingView exam={activeExam} onBack={() => setCurrentView(AppView.OnlineExams)} onSubmit={handleSubmitExam} /> : <OnlineExamView exams={exams} onStartExam={handleStartExam} />;
           case AppView.LeaveManagement: return <LeaveManagementView requests={leaveRequests} userRole={currentUser!.role} currentUser={currentUser!} onStatusChange={handleLeaveStatusChange} onApplyLeave={handleApplyLeave} />;
           case AppView.Attendance: return <AttendanceView records={attendanceRecords} />; 
+          case AppView.Research: return <ResearchView />;
+          case AppView.MnemonicMaster: return <MnemonicView />;
+          case AppView.SnapSolve: return <SnapSolveView />;
+          case AppView.LiveTutor: return <LiveTutorView />;
+          case AppView.SmartGrader: return <SmartGraderView />;
+          case AppView.CareerCompass: return <CareerCompassView />; // NEW
+          case AppView.SmartNotes: return <SmartNotesView />; // NEW
 
           default: return renderStudyPlanContent();
       }
@@ -597,15 +680,15 @@ const App: React.FC = () => {
   if (!currentUser) {
       return (
         <div className="min-h-screen bg-stone-950 text-stone-200">
-             <header className="bg-stone-900/90 backdrop-blur-sm shadow-md border-b border-stone-800 sticky top-0 z-30">
+             <header className="bg-stone-900/90 backdrop-blur-md shadow-lg border-b border-stone-800 sticky top-0 z-30">
                 <div className="container mx-auto px-6 py-3 flex items-center justify-between">
                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg text-white shadow-md">
+                        <div className="p-2 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg text-white shadow-md shadow-amber-900/20">
                             <BookOpenIcon className="h-6 w-6" />
                         </div>
                         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-200">Mind Mate AI</h1>
                      </div>
-                     <button onClick={() => setShowLanding(true)} className="text-sm text-stone-400 hover:text-amber-400 transition-colors">Back to Home</button>
+                     <button onClick={() => setShowLanding(true)} className="text-sm text-stone-400 hover:text-amber-400 transition-colors font-medium">Back to Home</button>
                 </div>
             </header>
             <main className="container mx-auto px-6 py-8">
@@ -632,25 +715,28 @@ const App: React.FC = () => {
         return (
             <button 
                 onClick={() => setCurrentView(view)} 
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                     isActive 
-                        ? 'bg-amber-500/10 text-amber-400 shadow-sm border border-amber-500/20' 
-                        : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200'
+                        ? 'bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-900/10 border border-amber-500/20' 
+                        : 'text-stone-400 hover:bg-stone-800/50 hover:text-stone-200 hover:pl-5'
                 }`}
             >
-                <Icon className={`h-5 w-5 ${isActive ? 'text-amber-400' : 'text-stone-500'}`} />
+                <Icon className={`h-5 w-5 transition-colors ${isActive ? 'text-amber-400' : 'text-stone-500 group-hover:text-stone-300'}`} />
                 {label}
             </button>
         );
     };
 
+  // Determine theme class for wrapper
+  const themeClass = currentTheme === 'barbie' ? 'theme-barbie' : currentTheme === 'avengers' ? 'theme-avengers' : currentTheme === 'light' ? 'theme-light' : '';
+
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-200 transition-colors duration-300">
-      <header className="bg-stone-900/90 backdrop-blur-sm shadow-md border-b border-stone-800 sticky top-0 z-30">
+    <div className={`min-h-screen bg-stone-950 text-stone-200 transition-colors duration-500 ${themeClass}`}>
+      <header className="bg-stone-900/80 backdrop-blur-md shadow-lg border-b border-stone-800 sticky top-0 z-30 transition-colors duration-500">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg text-white shadow-md">
+                <div className="p-2 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg text-white shadow-lg shadow-amber-900/20">
                     <BookOpenIcon className="h-6 w-6" />
                 </div>
                 <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-200 hidden md:block">Mind Mate AI</h1>
@@ -658,49 +744,83 @@ const App: React.FC = () => {
               
               <div className="flex items-center gap-2 sm:gap-4">
                    {/* Streak Counter - Gamification (Students Only) */}
-                   {currentUser.role === 'student' && <div className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 rounded-full border border-stone-700" title={`${streakDays} Day Streak!`}>
-                        <span className="text-lg">🔥</span>
-                        <span className="text-sm font-bold text-orange-500">{streakDays}</span>
-                   </div>}
+                   {currentUser.role === 'student' && (
+                        <div className={`flex items-center gap-2 px-3 py-1.5 bg-stone-800/50 rounded-full border border-stone-700/50 transition-all duration-500 backdrop-blur-sm ${showStreakAnimation ? 'ring-2 ring-orange-500 scale-110 bg-orange-900/20' : ''}`} title={`${streakDays} Day Streak!`}>
+                            <span className={`text-lg ${showStreakAnimation ? 'animate-bounce' : ''}`}>🔥</span>
+                            <span className="text-sm font-bold text-orange-500">{streakDays}</span>
+                        </div>
+                   )}
+
+                   {/* Theme Selector */}
+                   <div className="relative">
+                        <button onClick={() => setShowThemeSelector(!showThemeSelector)} className="p-2 rounded-full hover:bg-stone-800 text-stone-400 hover:text-white transition-colors" title="Change Theme">
+                            <SettingsIcon className="h-5 w-5" />
+                        </button>
+                        {showThemeSelector && (
+                            <div className="absolute right-0 mt-3 w-48 bg-stone-900 rounded-xl shadow-xl border border-stone-700 animate-fade-in z-40 overflow-hidden">
+                                <div className="p-3 border-b border-stone-800">
+                                    <h3 className="font-semibold text-xs text-stone-400 uppercase tracking-wider">Select Theme</h3>
+                                </div>
+                                <div className="p-2 space-y-1">
+                                    <button onClick={() => { setCurrentTheme('default'); setShowThemeSelector(false); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg flex items-center gap-2 ${currentTheme === 'default' ? 'bg-slate-900/50 text-slate-400' : 'hover:bg-stone-800 text-stone-300'}`}>
+                                        <MoonIcon className="w-4 h-4" /> Cosmic Slate (Dark)
+                                    </button>
+                                    <button onClick={() => { setCurrentTheme('light'); setShowThemeSelector(false); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg flex items-center gap-2 ${currentTheme === 'light' ? 'bg-amber-900/20 text-amber-500' : 'hover:bg-stone-800 text-stone-300'}`}>
+                                        <SunIcon className="w-4 h-4" /> Porcelain (Light)
+                                    </button>
+                                    <button onClick={() => { setCurrentTheme('barbie'); setShowThemeSelector(false); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg flex items-center gap-2 ${currentTheme === 'barbie' ? 'bg-pink-900/20 text-pink-400' : 'hover:bg-stone-800 text-stone-300'}`}>
+                                        <div className="w-3 h-3 rounded-full bg-pink-500 border border-pink-400"></div> Dreamhouse
+                                    </button>
+                                    <button onClick={() => { setCurrentTheme('avengers'); setShowThemeSelector(false); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg flex items-center gap-2 ${currentTheme === 'avengers' ? 'bg-red-900/20 text-red-500' : 'hover:bg-stone-800 text-stone-300'}`}>
+                                        <div className="w-3 h-3 rounded-full bg-red-600 border border-red-500"></div> Hero Tech
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                   </div>
 
                    <div className="relative">
-                     <button onClick={() => setIsInvitePopoverOpen(prev => !prev)} className="relative p-2 rounded-full hover:bg-stone-800 transition-colors">
-                        <BellIcon className="h-5 w-5 text-stone-400" />
-                        {pendingInvites.length > 0 && <span className="absolute top-0.5 right-0.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-stone-900" />}
+                     <button onClick={() => setIsInvitePopoverOpen(prev => !prev)} className="relative p-2 rounded-full hover:bg-stone-800 text-stone-400 hover:text-white transition-colors">
+                        <BellIcon className="h-5 w-5" />
+                        {pendingInvites.length > 0 && <span className="absolute top-0.5 right-0.5 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-stone-900 animate-pulse" />}
                      </button>
                      {isInvitePopoverOpen && (
-                        <div className="absolute right-0 mt-2 w-72 bg-stone-900 rounded-lg shadow-xl border border-stone-700 animate-fade-in z-40">
-                          <div className="p-3 border-b border-stone-700 bg-stone-800 rounded-t-lg">
+                        <div className="absolute right-0 mt-3 w-80 bg-stone-900 rounded-2xl shadow-2xl border border-stone-700 animate-fade-in z-40 overflow-hidden">
+                          <div className="p-4 border-b border-stone-800 bg-stone-950/50">
                             <h3 className="font-semibold text-sm text-stone-200">Notifications</h3>
                           </div>
                           {pendingInvites.length > 0 ? (
-                            <ul className="py-1 max-h-64 overflow-y-auto">
+                            <ul className="max-h-64 overflow-y-auto">
                               {pendingInvites.map(invite => (
-                                <li key={invite.id} className="p-3 text-sm hover:bg-stone-800 border-b border-stone-800 last:border-0">
-                                  <p className="text-stone-400">
-                                    <span className="font-semibold text-stone-200">{invite.fromUserName}</span> invited you to join <span className="font-semibold text-stone-200">{invite.groupName}</span>.
+                                <li key={invite.id} className="p-4 text-sm hover:bg-stone-800/50 border-b border-stone-800 last:border-0 transition-colors">
+                                  <p className="text-stone-400 mb-3">
+                                    <span className="font-bold text-stone-200">{invite.fromUserName}</span> invited you to join <span className="font-bold text-amber-500">{invite.groupName}</span>.
                                   </p>
-                                  <div className="flex items-center justify-end gap-2 mt-2">
-                                    <button onClick={() => { handleDeclineInvitation(invite.id); setIsInvitePopoverOpen(false); }} className="px-2 py-1 bg-stone-700 text-stone-300 text-xs font-semibold rounded hover:bg-stone-600">Decline</button>
-                                    <button onClick={() => { handleAcceptInvitation(invite.id); setIsInvitePopoverOpen(false); }} className="px-2 py-1 bg-amber-600 text-white text-xs font-semibold rounded hover:bg-amber-700">Accept</button>
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button onClick={() => { handleDeclineInvitation(invite.id); setIsInvitePopoverOpen(false); }} className="px-3 py-1.5 bg-stone-800 text-stone-400 text-xs font-semibold rounded-lg hover:bg-stone-700 hover:text-white transition-colors">Decline</button>
+                                    <button onClick={() => { handleAcceptInvitation(invite.id); setIsInvitePopoverOpen(false); }} className="px-3 py-1.5 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 shadow-md transition-colors">Accept</button>
                                   </div>
                                 </li>
                               ))}
                             </ul>
                           ) : (
-                            <p className="text-sm text-stone-500 p-4 text-center">No pending invitations.</p>
+                            <div className="p-8 text-center">
+                                <BellIcon className="h-8 w-8 text-stone-700 mx-auto mb-2" />
+                                <p className="text-sm text-stone-500">No new notifications.</p>
+                            </div>
                           )}
                         </div>
                      )}
                    </div>
                   <div className="h-6 w-px bg-stone-800 hidden sm:block" />
-                  <button onClick={() => setCurrentView(AppView.MyProfile)} className="flex items-center gap-2 text-sm p-2 rounded-md hover:bg-stone-800 transition-colors group">
-                    <UserIcon className="h-5 w-5 text-stone-400 group-hover:text-amber-400" />
-                    <span className="font-medium text-stone-300 hidden sm:inline">{currentUser.name}</span>
+                  <button onClick={() => setCurrentView(AppView.MyProfile)} className="flex items-center gap-2 text-sm p-1.5 pr-3 rounded-full hover:bg-stone-800 border border-transparent hover:border-stone-700 transition-all group">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-stone-700 to-stone-600 flex items-center justify-center text-xs font-bold text-stone-300 group-hover:from-amber-600 group-hover:to-yellow-600 group-hover:text-white transition-all">
+                        {currentUser.name.charAt(0)}
+                    </div>
+                    <span className="font-medium text-stone-300 hidden sm:inline group-hover:text-white transition-colors">{currentUser.name}</span>
                   </button>
-                  <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 bg-stone-800 text-stone-400 text-sm font-semibold rounded-md hover:bg-stone-700 hover:text-stone-200 transition-colors" title="Logout">
-                      <LogOutIcon className="h-4 w-4" />
-                      <span className="hidden sm:inline">Logout</span>
+                  <button onClick={handleLogout} className="p-2 text-stone-500 hover:text-red-400 hover:bg-red-900/10 rounded-lg transition-colors" title="Logout">
+                      <LogOutIcon className="h-5 w-5" />
                   </button>
                 </div>
             </div>
@@ -709,32 +829,41 @@ const App: React.FC = () => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
-            <aside className="lg:w-64 lg:flex-shrink-0 py-8">
-                <div className="bg-stone-900 rounded-xl shadow-md border border-stone-800 p-4 sticky top-24">
-                    <nav className="space-y-2">
+            <aside className="lg:w-64 lg:flex-shrink-0 py-8 hidden lg:block">
+                <div className="bg-stone-900/50 backdrop-blur-xl rounded-2xl shadow-xl border border-stone-800 p-4 sticky top-24 transition-colors duration-500">
+                    <nav className="space-y-1.5">
                     
                     {/* Student View Links */}
                     {currentUser.role === 'student' && (
                         <>
+                            <p className="px-4 py-2 text-xs font-bold text-stone-500 uppercase tracking-widest mb-1">Learning</p>
                             <NavLink view={AppView.StudyPlan} label="Study Plan" icon={LayoutDashboardIcon} />
-                            <NavLink view={AppView.StudentAnalytics} label="My Analytics" icon={BarChartIcon} />
+                            <NavLink view={AppView.StudentAnalytics} label="Analytics" icon={BarChartIcon} />
                             <NavLink view={AppView.OnlineCourses} label="Courses" icon={BookOpenIcon} />
                             <NavLink view={AppView.Homework} label="Homework" icon={ClipboardCheckIcon} />
                             <NavLink view={AppView.DigitalLibrary} label="Library" icon={BookOpenIcon} />
-                            <NavLink view={AppView.OnlineExams} label="Online Exams" icon={TargetIcon} />
+                            <NavLink view={AppView.OnlineExams} label="Exams" icon={TargetIcon} />
                             <NavLink view={AppView.Attendance} label="Attendance" icon={CalendarCheckIcon} />
                             
-                            <div className="pt-2 border-t border-stone-800 mt-2 mb-2">
-                                <p className="px-3 text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Tools</p>
-                                <NavLink view={AppView.FeynmanBoard} label="Feynman Board" icon={PresentationIcon} />
-                                <NavLink view={AppView.DebateArena} label="Debate Arena" icon={SwordsIcon} />
-                                <NavLink view={AppView.IntelligentTodo} label="Smart To-Do" icon={CheckSquareIcon} />
-                                <NavLink view={AppView.FocusMonitor} label="Focus Monitor" icon={TargetIcon} />
-                                <NavLink view={AppView.GroupChat} label="Group Chat" icon={MessageCircleIcon} />
-                                <NavLink view={AppView.AmbientVoice} label="Ambient Coach" icon={MicIcon} />
-                                <NavLink view={AppView.WellbeingHub} label="Wellbeing Hub" icon={WindIcon} />
-                                <NavLink view={AppView.Gaming} label="Game Zone" icon={Gamepad2Icon} />
-                            </div>
+                            <div className="h-px bg-stone-800 my-3 mx-2"></div>
+                            <p className="px-4 py-2 text-xs font-bold text-stone-500 uppercase tracking-widest mb-1">AI Tools</p>
+                            <NavLink view={AppView.LiveTutor} label="Live Tutor" icon={HeadphonesIcon} />
+                            <NavLink view={AppView.SnapSolve} label="Snap & Solve" icon={CameraIcon} />
+                            <NavLink view={AppView.MnemonicMaster} label="Mnemonic Master" icon={LightbulbIcon} />
+                            <NavLink view={AppView.Research} label="Deep Dive" icon={SearchIcon} />
+                            <NavLink view={AppView.SmartNotes} label="Smart Notes" icon={PenToolIcon} /> {/* NEW */}
+                            <NavLink view={AppView.CareerCompass} label="Career Compass" icon={CompassIcon} /> {/* NEW */}
+                            
+                            <div className="h-px bg-stone-800 my-3 mx-2"></div>
+                            <p className="px-4 py-2 text-xs font-bold text-stone-500 uppercase tracking-widest mb-1">Labs</p>
+                            <NavLink view={AppView.FeynmanBoard} label="Feynman Board" icon={PresentationIcon} />
+                            <NavLink view={AppView.DebateArena} label="Debate Arena" icon={SwordsIcon} />
+                            <NavLink view={AppView.IntelligentTodo} label="Smart Planner" icon={CheckSquareIcon} />
+                            <NavLink view={AppView.FocusMonitor} label="Focus Monitor" icon={TargetIcon} />
+                            <NavLink view={AppView.GroupChat} label="Group Chat" icon={MessageCircleIcon} />
+                            <NavLink view={AppView.AmbientVoice} label="Ambient Coach" icon={MicIcon} />
+                            <NavLink view={AppView.WellbeingHub} label="Wellbeing Hub" icon={WindIcon} />
+                            <NavLink view={AppView.Gaming} label="Game Zone" icon={Gamepad2Icon} />
                         </>
                     )}
 
@@ -742,14 +871,18 @@ const App: React.FC = () => {
                     {currentUser.role === 'teacher' && (
                         <>
                             <NavLink view={AppView.TeacherDashboard} label="Class Overview" icon={UsersIcon} />
+                            <NavLink view={AppView.SmartGrader} label="Smart Grader" icon={GraduationCapIcon} />
                             <NavLink view={AppView.Homework} label="Assign Homework" icon={ClipboardCheckIcon} />
                             <NavLink view={AppView.LeaveManagement} label="Leave Requests" icon={CalendarIcon} />
-                            <div className="pt-2 border-t border-stone-800 mt-2 mb-2">
-                                <p className="px-3 text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Tools Preview</p>
-                                <NavLink view={AppView.StudyPlan} label="Syllabus Creator" icon={BookOpenIcon} />
-                                <NavLink view={AppView.FeynmanBoard} label="Feynman Board" icon={PresentationIcon} />
-                                <NavLink view={AppView.DebateArena} label="Debate Arena" icon={SwordsIcon} />
-                            </div>
+                            <div className="h-px bg-stone-800 my-3 mx-2"></div>
+                            <p className="px-4 py-2 text-xs font-bold text-stone-500 uppercase tracking-widest mb-1">Tools Preview</p>
+                            <NavLink view={AppView.LiveTutor} label="Live Tutor" icon={HeadphonesIcon} />
+                            <NavLink view={AppView.SnapSolve} label="Snap & Solve" icon={CameraIcon} />
+                            <NavLink view={AppView.Research} label="Deep Dive" icon={SearchIcon} />
+                            <NavLink view={AppView.SmartNotes} label="Smart Notes" icon={PenToolIcon} /> {/* NEW */}
+                            <NavLink view={AppView.StudyPlan} label="Syllabus Creator" icon={BookOpenIcon} />
+                            <NavLink view={AppView.FeynmanBoard} label="Feynman Board" icon={PresentationIcon} />
+                            <NavLink view={AppView.DebateArena} label="Debate Arena" icon={SwordsIcon} />
                         </>
                     )}
 
@@ -760,17 +893,19 @@ const App: React.FC = () => {
                             <NavLink view={AppView.Homework} label="Homework Plan" icon={ClipboardCheckIcon} />
                             <NavLink view={AppView.Attendance} label="Attendance" icon={CalendarCheckIcon} />
                             <NavLink view={AppView.LeaveManagement} label="Apply Leave" icon={CalendarIcon} />
-                             <div className="pt-2 border-t border-stone-800 mt-2 mb-2">
-                                <p className="px-3 text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Support</p>
-                                <NavLink view={AppView.WellbeingHub} label="Wellbeing Hub" icon={WindIcon} />
-                            </div>
+                             <div className="h-px bg-stone-800 my-3 mx-2"></div>
+                            <p className="px-4 py-2 text-xs font-bold text-stone-500 uppercase tracking-widest mb-1">Resources</p>
+                            <NavLink view={AppView.SnapSolve} label="Homework Helper" icon={CameraIcon} />
+                            <NavLink view={AppView.CareerCompass} label="Career Compass" icon={CompassIcon} /> {/* NEW */}
+                            <NavLink view={AppView.Research} label="Deep Dive" icon={SearchIcon} />
+                            <NavLink view={AppView.WellbeingHub} label="Wellbeing Hub" icon={WindIcon} />
                         </>
                     )}
 
                     </nav>
                 </div>
             </aside>
-            <main className="flex-1 py-8">
+            <main className="flex-1 py-8 min-w-0">
                 {renderAppContent()}
             </main>
         </div>
